@@ -10,12 +10,17 @@ Recent years have witnessed significant progress in the field of few-shot image 
 
 ## Installation
 
+This project is built upon the following environment:
 * Install Python 3.6
 * Install CUDA 11.0
 * Install PyTorch 1.10.2
 
+The package requirements include:
+* pytorch==1.10.2
+* tqdm==4.63.1
+* tensorboard==2.8.0
 
-## Dataset
+## Datasets
 
 * Download [ModelNet40](https://modelnet.cs.princeton.edu/)
 * Download [ModelNet40-C from Google Drive](https://drive.google.com/drive/folders/10YeQRh92r_WdL-Dnog2zQfFr03UW4qXX)
