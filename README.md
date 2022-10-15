@@ -13,7 +13,7 @@
 * Download [ModelNet40-C from Google Drive](https://drive.google.com/drive/folders/10YeQRh92r_WdL-Dnog2zQfFr03UW4qXX)
 * Download [ScanObjectNN](https://hkust-vgd.github.io/scanobjectnn/)
 
-All data should be converted to .npy format.
+All data used in this project is in .npy format.
 ## Train
 Train a model on the ModelNet40 dataset by
 ```
