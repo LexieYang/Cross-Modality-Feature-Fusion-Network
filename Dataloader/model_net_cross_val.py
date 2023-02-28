@@ -127,6 +127,7 @@ class NShotTaskSampler(Sampler):
             - the last k_way*query images is for the query set 
             '''    
             epi_index=np.concatenate((s,q))
+            np.randum.shuffle(epi_index[self.n_way:)
             yield epi_index
             
 
