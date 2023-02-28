@@ -206,7 +206,15 @@ def test_model(model,val_loader,cfg):
     logger.debug('Mean: {}, Interval: {}'.format(mean_acc*100,interval*100))
 
     
-
+def getQueryLabel(y, k_way):
+    y = y.cpu().tolist()
+    label_mapping = {ori_label: i for i, ori_label in enumerate(y[:k_way])}
+    query_ori_label = y[k_way:]
+    query_label = []
+    for key in query_ori_label:
+        query_label.append(label_mapping[key])
+    query_label = torch.tensor(query_label).cuda()
+    return query_label
 
 
 def run_one_epoch(model, bar, mode, loss_func, optimizer=None, show_interval=10):
@@ -233,12 +241,14 @@ def run_one_epoch(model, bar, mode, loss_func, optimizer=None, show_interval=10)
         if mode=='train':
             optimizer.zero_grad()
             if cfg.fs_head in ['protonet', 'CIA', 'crossAtt_mixmodel']:
-                q_label = torch.arange(cfg.k_way).repeat_interleave(cfg.query).to(device)
+#                 q_label = torch.arange(cfg.k_way).repeat_interleave(cfg.query).to(device)
+                q_label = getQueryLabel(y, cfg.k_way)
                 s_label = torch.arange(cfg.k_way).to(device)
                 pred,loss = model(x, [s_label, q_label])
 
             elif cfg.fs_head == 'MetaOpt':
-                q_label = torch.arange(cfg.k_way).repeat_interleave(cfg.query).to(device)
+#                 q_label = torch.arange(cfg.k_way).repeat_interleave(cfg.query).to(device)
+                q_label = getQueryLabel(y, cfg.k_way)
                 s_label = torch.arange(cfg.k_way).repeat_interleave(cfg.n_shot).to(device)
                 pred,loss = model(x, [s_label, q_label])
             else:
@@ -250,12 +260,14 @@ def run_one_epoch(model, bar, mode, loss_func, optimizer=None, show_interval=10)
         else:
             with torch.no_grad():
                 if cfg.fs_head in ['protonet', 'CIA', 'crossAtt_mixmodel']:
-                    q_label = torch.arange(cfg.k_way).repeat_interleave(cfg.query).to(device)
+#                     q_label = torch.arange(cfg.k_way).repeat_interleave(cfg.query).to(device)
+                    q_label = getQueryLabel(y, cfg.k_way)
                     s_label = torch.arange(cfg.k_way).to(device)
                     pred,loss = model(x, [s_label, q_label])
 
                 elif cfg.fs_head in ['MetaOpt']:
-                    q_label = torch.arange(cfg.k_way).repeat_interleave(cfg.query).to(device)
+#                     q_label = torch.arange(cfg.k_way).repeat_interleave(cfg.query).to(device)
+                    q_label = getQueryLabel(y, cfg.k_way)
                     s_label = torch.arange(cfg.k_way).repeat_interleave(cfg.n_shot).to(device)
                     pred,loss = model(x, [s_label, q_label])
                 else:
