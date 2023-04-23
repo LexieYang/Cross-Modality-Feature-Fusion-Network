@@ -8,12 +8,6 @@ import torch.nn as nn
 import torch.nn.functional as F
 from util.pcview import PCViews
 from util.utils import Squeeze
-'''
-In this model,
-I replace the maxpooing among the frame dimension with my own 
-aggregation method.
-'''
-
 
 
 class BasicConv2d(nn.Module):
@@ -75,40 +69,6 @@ class SetBlock(nn.Module):
 
 
 
-class CSAM_Module(nn.Module):
-    """ Channel-Spatial attention module"""
-    def __init__(self):
-        super(CSAM_Module, self).__init__()
-        # self.chanel_in = in_dim
-
-
-        self.conv = nn.Conv3d(1, 1, 3, 1, 1)
-        self.gamma = nn.Parameter(torch.zeros(1))
-        #self.softmax  = nn.Softmax(dim=-1)
-        self.sigmoid = nn.Sigmoid()
-    def forward(self,x):
-        """
-            inputs :
-                x : input feature maps( B X N X C X H X W)
-            returns :
-                out : attention value + input feature
-                attention: B X N X N
-        """
-        m_batchsize, C, height, width = x.size()
-        out = x.unsqueeze(1)
-        out = self.sigmoid(self.conv(out))
-
-        out = self.gamma*out
-        out = out.view(m_batchsize, -1, height, width)
-        x = x * out + x
-        return x, out
-
-
-
-
-
-
-
 class MVModel(nn.Module):
     def __init__(self, feat_size=32, backbone='resnet18'):
         super().__init__()
@@ -121,10 +81,7 @@ class MVModel(nn.Module):
         self.img_model = nn.Sequential(*img_layers)
         # ===== bin number ======
         self.bin_num = [1, 2, 4, 8, 16, 32]
-        # self.bin_num = [1, 2, 4]
-        # =======================
-        # self.CSAM = CSAM_Module()
-        # self.fc = nn.Linear(1024, 32)
+
         self.final=nn.Linear(128, self.hidden_dim)
 
 
@@ -139,7 +96,7 @@ class MVModel(nn.Module):
         imgs=self.pcview.get_img(inpt.permute(0,2,1))
         _,h,w=imgs.shape # torch.Size([120, 128, 128])
         
-        imgs=imgs.reshape(bs, 6, h, w)
+        imgs=imgs.reshape(bs, 6, -1)
         max=torch.max(imgs,-1,keepdim=True)[0]
         min=torch.min(imgs,-1,keepdim=True)[0]
         
