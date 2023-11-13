@@ -102,7 +102,7 @@ class MVModel(nn.Module):
         
         nor_img=(imgs-min)/(max-min+0.0001)
         nor_img=nor_img.reshape(bs,6,h,w)
-        return imgs
+        return nor_img
 
     @staticmethod
     def get_img_layers(backbone, feat_size):
